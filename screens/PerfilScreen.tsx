@@ -28,12 +28,14 @@ export default function PerfilScreen() {
         if(data){
             const listTemp = {key: codigo, ...data};
             setlista([listTemp]);
-            Alert.alert('Mensaje', 'Mascota encontrada');
         }else{
             setlista([]);
             Alert.alert('Mensaje', `No se encontró ninguna mascota con el código: ${codigo}`);
         }
     });
+
+        setcodigo("")
+
     }
 
     
@@ -45,8 +47,8 @@ export default function PerfilScreen() {
       <TextInput
         placeholder='Ingrese codigo mascota'
         keyboardType='numeric'
-        value={codigo}
-        onChangeText={setcodigo}/>
+        onChangeText={setcodigo}
+        value={codigo}/>
       <TouchableOpacity style={styles.btn} onPress={()=>leer()}>
                 <Text style={styles.textbutton}>Buscar</Text>
       </TouchableOpacity>
