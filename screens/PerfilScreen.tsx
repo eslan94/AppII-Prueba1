@@ -1,10 +1,15 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { db } from '../config/Config'
 import { ref, set, onValue } from "firebase/database";
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 
-
+type Mascota={
+    key: string
+    name: string
+    raza: string
+    age: string
+}
 
 export default function PerfilScreen() {
 
@@ -13,43 +18,48 @@ export default function PerfilScreen() {
     const [raza, setraza] = useState("")
     const [edad, setedad] = useState("")
 
-    const [lista, setlista] = useState([])
+    const [lista, setlista] = useState<Mascota[]>([]);
 
     function leer(){
-        const starCountRef = ref(db, 'mascotas/' + codigo);
-        onValue(starCountRef, (snapshot) => {
+        const mascotaInfo = ref(db, 'mascotas/' + codigo);
+        onValue(mascotaInfo, (snapshot) => {
         const data = snapshot.val();
-
-        const listTemp : any= Object.keys(data).map((key)=>({
-            key, ...data[key]
-        }))
-
-        setlista(listTemp)
+        
+        if(data){
+            const listTemp = {key: codigo, ...data};
+            setlista([listTemp]);
+            Alert.alert('Mensaje', 'Mascota encontrada');
+        }else{
+            setlista([]);
+            Alert.alert('Mensaje', `No se encontró ninguna mascota con el código: ${codigo}`);
+        }
     });
     }
 
-    type Mascota={
-        name: string
-    }
+    
 
   return (
     <View>
       <Text>Informacion Mascota</Text>
       <Text>Codigo: </Text>
       <TextInput
-        placeholder='Ingrese codigo mascota'/>
+        placeholder='Ingrese codigo mascota'
+        keyboardType='numeric'
+        value={codigo}
+        onChangeText={setcodigo}/>
       <TouchableOpacity style={styles.btn} onPress={()=>leer()}>
-                <Text style={styles.textbutton}>Guardar</Text>
+                <Text style={styles.textbutton}>Buscar</Text>
       </TouchableOpacity>
       <FlatList
       data={lista}
-      renderItem={({item}:{item: Mascota})=>
+      renderItem={({item}:{item: Mascota})=>(
         <View>
             <Text>Nombre: {item.name}</Text>
-            <Text>Raza: {item.name}</Text>
-            <Text>Edad: {item.name}</Text>
+            <Text>Raza: {item.raza}</Text>
+            <Text>Edad: {item.age}</Text>
         </View>
-    }
+     )}
+     keyExtractor={item=>item.key}
       />
     </View>
   )
@@ -68,11 +78,11 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginVertical: 10,
         borderRadius: 5,
-        backgroundColor: 'green'
+        backgroundColor: 'blue'
       },
       textbutton: {
         fontSize: 15,
-        color: 'rgb(0,255,30)',
+        color: 'white',
         fontWeight: 'bold',
       },
 })
